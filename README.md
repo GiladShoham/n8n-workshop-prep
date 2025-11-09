@@ -76,12 +76,42 @@ You'll need to configure credentials for the following services in n8n:
 2. Go to your project's SQL Editor
 3. Create a table using the following SQL:
 ```sql
-create table n8n_workshop_documents (
-  id serial primary key,
-  title text not null,
-  body text not null,
-  embedding extensions.vector(384)
+-- Enable the pgvector extension to work with embedding vectors
+create extension vector;
+-- Create a table to store your documents
+create table documents (
+  id bigserial primary key,
+  content text, -- corresponds to Document.pageContent
+  metadata jsonb, -- corresponds to Document.metadata
+  embedding extensions.vector(1536) -- 1536 works for OpenAI embeddings, change if needed
 );
+-- Create a function to search for documents
+create function match_documents (
+  query_embedding extensions.vector(1536),
+  match_count int default null,
+  filter jsonb DEFAULT '{}'
+) returns table (
+  id bigint,
+  content text,
+  metadata jsonb,
+  similarity float
+)
+language plpgsql
+as $$
+#variable_conflict use_column
+begin
+  return query
+  select
+    id,
+    content,
+    metadata,
+    1 - (documents.embedding <=> query_embedding) as similarity
+  from documents
+  where metadata @> filter
+  order by documents.embedding <=> query_embedding
+  limit match_count;
+end;
+$$;
 ```
 4. Execute the SQL to create the table
 
