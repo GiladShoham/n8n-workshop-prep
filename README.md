@@ -74,7 +74,7 @@ You'll need to configure credentials for the following services in n8n:
 #### Create Supabase Vector Table
 1. Log in to your Supabase account (https://supabase.com)
 2. Go to your project's SQL Editor
-3. Create a table using the following SQL:
+3. Create a table using the following SQL (src: [docs](https://supabase.com/docs/guides/ai/langchain?database-method=sql&queryGroups=database-method):)
 ```sql
 -- Enable the pgvector extension to work with embedding vectors
 create extension vector;
