@@ -4,22 +4,47 @@
     {
       "parameters": {},
       "id": "eab9b0b5-433d-4a8b-9f3d-a87e15c4c1a1",
-      "name": "Start",
-      "type": "n8n-nodes-base.start",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [250, 300]
     },
     {
       "parameters": {
+        "options": {}
+      },
+      "id": "7e8f9a0b-2c3d-4e5f-6a7b-8c9d0e1f2a3b",
+      "name": "Chat Trigger",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1,
+      "position": [250, 500],
+      "webhookId": "workshop-chat-trigger"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      data: \"This is a test file created from n8n workshop.\"\n    }\n  }\n];"
+      },
+      "id": "8f9a0b1c-3d4e-5f6a-7b8c-9d0e1f2a3b4c",
+      "name": "Prepare File Data",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [450, 200]
+    },
+    {
+      "parameters": {
         "resource": "file",
-        "operation": "list",
-        "folderId": "YOUR_FOLDER_ID_HERE"
+        "operation": "upload",
+        "name": "n8n-workshop-test.txt",
+        "inputDataFieldName": "data",
+        "options": {
+          "mimeType": "text/plain"
+        }
       },
       "id": "2f4b8d9e-7c1a-4b5e-9d3f-8a7e6c5d4e3f",
-      "name": "Google Drive - List Files",
+      "name": "Google Drive - Create File",
       "type": "n8n-nodes-base.googleDrive",
       "typeVersion": 3,
-      "position": [450, 200],
+      "position": [650, 200],
       "credentials": {
         "googleDriveOAuth2Api": {
           "id": "1",
@@ -48,7 +73,7 @@
       "name": "Google Sheets - Read",
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.4,
-      "position": [650, 200],
+      "position": [850, 200],
       "credentials": {
         "googleSheetsOAuth2Api": {
           "id": "2",
@@ -58,17 +83,16 @@
     },
     {
       "parameters": {
-        "resource": "message",
-        "operation": "send",
-        "to": "test@example.com",
-        "subject": "Test Email from n8n Workshop",
-        "message": "This is a test email to verify Gmail credentials."
+        "resource": "draft",
+        "operation": "create",
+        "subject": "n8n workshop draft",
+        "message": "This is a draft email created during the n8n workshop to verify Gmail credentials."
       },
       "id": "4b6d8f0a-9e3c-5d7f-0a5e-0c9e8d7f6a5b",
-      "name": "Gmail - Send Email",
+      "name": "Gmail - Create Draft",
       "type": "n8n-nodes-base.gmail",
       "typeVersion": 2.1,
-      "position": [850, 200],
+      "position": [1050, 200],
       "credentials": {
         "gmailOAuth2": {
           "id": "3",
@@ -78,59 +102,58 @@
     },
     {
       "parameters": {
-        "operation": "message",
-        "text": "Test prompt for OpenAI",
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true
+      },
+      "id": "9a0b1c2d-4e5f-6a7b-8c9d-0e1f2a3b4c5d",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [650, 500]
+    },
+    {
+      "parameters": {
+        "model": "gpt-3.5-turbo",
         "options": {}
       },
-      "id": "5c7e9f1b-0f4d-6e8f-1b6f-1d0f9e8f7b6c",
-      "name": "OpenAI",
-      "type": "@n8n/n8n-nodes-langchain.openAi",
-      "typeVersion": 1.4,
-      "position": [450, 400],
+      "id": "0b1c2d3e-5f6a-7b8c-9d0e-1f2a3b4c5d6e",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [650, 700],
       "credentials": {
         "openAiApi": {
           "id": "4",
           "name": "OpenAI account"
         }
       }
-    },
-    {
-      "parameters": {
-        "operation": "retrieve",
-        "prompt": "Test query",
-        "options": {}
-      },
-      "id": "6d8f0a2c-1f5e-7f9f-2c7f-2e1f0f9f8c7d",
-      "name": "Supabase Vector Store",
-      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
-      "typeVersion": 1,
-      "position": [650, 400],
-      "credentials": {
-        "supabaseApi": {
-          "id": "5",
-          "name": "Supabase account"
-        }
-      }
     }
   ],
   "connections": {
-    "Start": {
+    "Manual Trigger": {
       "main": [
         [
           {
-            "node": "Google Drive - List Files",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "OpenAI",
+            "node": "Prepare File Data",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Google Drive - List Files": {
+    "Prepare File Data": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - Create File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - Create File": {
       "main": [
         [
           {
@@ -145,19 +168,30 @@
       "main": [
         [
           {
-            "node": "Gmail - Send Email",
+            "node": "Gmail - Create Draft",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "OpenAI": {
+    "Chat Trigger": {
       "main": [
         [
           {
-            "node": "Supabase Vector Store",
+            "node": "AI Agent",
             "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
             "index": 0
           }
         ]
