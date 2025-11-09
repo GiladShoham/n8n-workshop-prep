@@ -7,6 +7,8 @@ This repository contains a test workflow to verify your n8n credentials before t
 - An n8n instance (cloud or self-hosted)
 - Google account with access to Gmail, Google Drive, and Google Sheets
 - OpenAI API account
+- Apify account
+- Supabase account
 
 ## Setup Instructions
 
@@ -52,6 +54,13 @@ You'll need to configure credentials for the following services in n8n:
 3. Create new OpenAI API credentials
 4. Enter your OpenAI API key
 
+#### Apify
+1. Create an account at https://apify.com/
+2. Go to https://console.apify.com/settings/integrations
+3. Create a new token
+4. Go to the "Apify HTTP Request" node in the workflow
+5. Replace `YOUR_APIFY_TOKEN_HERE` in the token field with your actual Apify token
+
 ### 4. Create Test Data in Google Sheets
 
 #### Create a Test Spreadsheet
@@ -61,6 +70,20 @@ You'll need to configure credentials for the following services in n8n:
 4. Add your name in cell A2 (e.g., "Gilad")
 5. Copy the spreadsheet ID from the URL (the long string between `/d/` and `/edit`)
    - Example: `https://docs.google.com/spreadsheets/d/1DEF...ABC/edit` → sheet ID is `1DEF...ABC`
+
+#### Create Supabase Vector Table
+1. Log in to your Supabase account (https://supabase.com)
+2. Go to your project's SQL Editor
+3. Create a table using the following SQL:
+```sql
+create table n8n_workshop_documents (
+  id serial primary key,
+  title text not null,
+  body text not null,
+  embedding extensions.vector(384)
+);
+```
+4. Execute the SQL to create the table
 
 ### 5. Update Node Parameters
 
@@ -79,10 +102,12 @@ You'll need to configure credentials for the following services in n8n:
    - The workflow should create a file called "n8n-workshop-test.txt" in your Google Drive
    - It should read your name from the Google Sheet
    - It should create a draft email in your Gmail with subject "n8n workshop draft"
+   - It should make a successful request to the Apify API
 5. Verify the results:
    - Check your Google Drive for the new text file
    - Verify the Google Sheets node output shows your name
    - Check Gmail drafts for the draft email
+   - Verify the Apify HTTP Request node shows a successful response (green status)
 
 #### Test Part 2: Chat with AI Agent
 1. In the n8n workflow, locate the "Chat Trigger" node
@@ -107,6 +132,8 @@ Your setup is complete when:
 - ✅ A text file "n8n-workshop-test.txt" is created in your Google Drive
 - ✅ The Google Sheets node successfully reads your name from the spreadsheet
 - ✅ A draft email with subject "n8n workshop draft" appears in your Gmail drafts
+- ✅ The Apify HTTP Request node returns a successful response
+- ✅ The Supabase vector table `n8n_workshop_documents` is created successfully
 - ✅ The chat trigger responds to your "hello" message with an AI-generated response
 - ✅ No error messages appear in the workflow execution
 
