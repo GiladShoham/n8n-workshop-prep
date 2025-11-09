@@ -1,0 +1,176 @@
+{
+  "name": "Workshop Credentials Test Workflow",
+  "nodes": [
+    {
+      "parameters": {},
+      "id": "eab9b0b5-433d-4a8b-9f3d-a87e15c4c1a1",
+      "name": "Start",
+      "type": "n8n-nodes-base.start",
+      "typeVersion": 1,
+      "position": [250, 300]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "list",
+        "folderId": "YOUR_FOLDER_ID_HERE"
+      },
+      "id": "2f4b8d9e-7c1a-4b5e-9d3f-8a7e6c5d4e3f",
+      "name": "Google Drive - List Files",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [450, 200],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "1",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "YOUR_SHEET_ID_HERE",
+          "mode": "list",
+          "cachedResultName": "Test Sheet"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "list",
+          "cachedResultName": "Sheet1"
+        },
+        "options": {}
+      },
+      "id": "3a5c7e9f-8d2b-4c6e-9e4f-9b8d7c6e5f4a",
+      "name": "Google Sheets - Read",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.4,
+      "position": [650, 200],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "2",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "to": "test@example.com",
+        "subject": "Test Email from n8n Workshop",
+        "message": "This is a test email to verify Gmail credentials."
+      },
+      "id": "4b6d8f0a-9e3c-5d7f-0a5e-0c9e8d7f6a5b",
+      "name": "Gmail - Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [850, 200],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "3",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "message",
+        "text": "Test prompt for OpenAI",
+        "options": {}
+      },
+      "id": "5c7e9f1b-0f4d-6e8f-1b6f-1d0f9e8f7b6c",
+      "name": "OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.4,
+      "position": [450, 400],
+      "credentials": {
+        "openAiApi": {
+          "id": "4",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "retrieve",
+        "prompt": "Test query",
+        "options": {}
+      },
+      "id": "6d8f0a2c-1f5e-7f9f-2c7f-2e1f0f9f8c7d",
+      "name": "Supabase Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStoreSupabase",
+      "typeVersion": 1,
+      "position": [650, 400],
+      "credentials": {
+        "supabaseApi": {
+          "id": "5",
+          "name": "Supabase account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Google Drive - List Files",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive - List Files": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets - Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets - Read": {
+      "main": [
+        [
+          {
+            "node": "Gmail - Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Supabase Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2025-11-09T09:00:00.000Z",
+  "versionId": "1"
+}
