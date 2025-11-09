@@ -128,6 +128,27 @@
           "name": "OpenAI account"
         }
       }
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://api.apify.com/v2/store",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "token",
+              "value": "YOUR_APIFY_TOKEN_HERE"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "1c2d3e4f-6a7b-8c9d-0e1f-2a3b4c5d6e7f",
+      "name": "Apify HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1250, 200]
     }
   ],
   "connections": {
@@ -169,6 +190,17 @@
         [
           {
             "node": "Gmail - Create Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail - Create Draft": {
+      "main": [
+        [
+          {
+            "node": "Apify HTTP Request",
             "type": "main",
             "index": 0
           }
